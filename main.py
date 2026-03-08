@@ -10,11 +10,20 @@ def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def run_adb(args):
-    # Base command executor
-    adb_path = os.path.join("platform-tools", "adb.exe")
+    # Get the directory where main.py is located
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # 1. Try finding adb.exe in the same folder (Installer's way)
+    adb_path = os.path.join(current_dir, "adb.exe")
+    
+    # 2. Fallback: Check if it's in a subfolder or System PATH
+    if not os.path.exists(adb_path):
+        adb_path = "adb" # Use system global adb
+        
     try:
-        return subprocess.run([adb_path] + args, capture_output=True, text=True, timeout=2)
-    except:
+        # Increased timeout to 5 for modern devices like S25 FE
+        return subprocess.run([adb_path] + args, capture_output=True, text=True, timeout=5)
+    except Exception:
         return None
 
 def get_device_info():

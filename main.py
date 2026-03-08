@@ -2,7 +2,7 @@ import os
 import subprocess
 import time
 from rich.console import Console
-from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.panel import Panel
 
 console = Console()
 
@@ -10,56 +10,80 @@ def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def run_adb(args):
-    """Internal function to run ADB commands from the local folder."""
+    # Base command executor
     adb_path = os.path.join("platform-tools", "adb.exe")
-    # Using 'subprocess.run' for stable command execution
-    return subprocess.run([adb_path] + args, capture_output=True, text=True)
+    try:
+        return subprocess.run([adb_path] + args, capture_output=True, text=True, timeout=2)
+    except:
+        return None
 
-def startup():
-    clear()
-    console.print("[bold cyan]Azeno42's Android Toolset v0.1[/bold cyan] [white]| Azeno42_Tech[/white]")
-    console.print("[white]------------------------------------------------[/white]\n")
+def get_device_info():
+    # Fetch model and android version
+    m = run_adb(["shell", "getprop", "ro.product.model"])
+    v = run_adb(["shell", "getprop", "ro.build.version.release"])
+    model = m.stdout.strip() if m and m.stdout else "Unknown"
+    ver = v.stdout.strip() if v and v.stdout else "?"
+    return f"{model} (Android {ver})"
 
-    with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), transient=True) as progress:
-        # Check ADB Engine
-        progress.add_task(description="Linking ADB Engine...", total=None)
-        time.sleep(1)
-        
-        # Check Device
-        task2 = progress.add_task(description="Searching for devices...", total=None)
-        res = run_adb(["devices"])
-        
-    if "device\n" in res.stdout:
-        console.print("[bold green]{ADB Engine...} [OK][/bold green]")
-        console.print("[bold green]{Device Status...} [CONNECTED][/bold green]")
+def check_root():
+    # Check if device has root access
+    res = run_adb(["shell", "su", "-c", "id"])
+    if res and "uid=0" in res.stdout:
         return True
-    else:
-        console.print("[bold red]{Device Status...} [NOT FOUND][/bold red]")
-        console.print("[yellow]Please connect your S20 FE / S25 FE and enable USB Debugging.[/yellow]")
-        return False
+    return False
 
-def smart_shell():
-    """The 'Uçuk' feature: Auto-detect root and enter shell."""
-    console.print("\n[bold blue]Checking Root Access...[/bold blue]")
-    # Try to run 'adb root' (Common in LineageOS)
-    run_adb(["root"])
-    time.sleep(1)
-    
-    # Enter the actual shell
-    adb_path = os.path.join("platform-tools", "adb.exe")
-    subprocess.call([adb_path, "shell"])
-
-def main():
-    if startup():
-        console.print("\n1) Enter Smart Shell (Root/User)")
-        console.print("2) Power Options (Reboot Menu)")
-        console.print("Q) Exit")
+def main_loop():
+    while True:
+        clear()
+        console.print("[bold cyan]Azeno42's Android Toolset v0.1-alpha[/bold cyan]\n")
         
-        choice = input("\nSelection > ")
-        if choice == '1':
-            smart_shell()
-        elif choice.lower() == 'q':
-            exit()
+        # Continuous connection check
+        res = run_adb(["devices"])
+        if res and "device\n" in res.stdout:
+            info = get_device_info()
+            is_root = check_root()
+            
+            # Status panel with root warning
+            status_msg = f"[bold green]Connected:[/bold green] {info}"
+            if not is_root:
+                status_msg += "\n[bold yellow]Root access not found, some features may be limited![/bold yellow]"
+            
+            console.print(Panel(status_msg, expand=False))
+            
+            console.print("\n1) Smart Shell\n2) Power Options\nQ) Exit")
+            choice = input("\nSelection > ").lower()
+            
+            if choice == '1':
+                run_adb(["root"])
+                subprocess.call([os.path.join("platform-tools", "adb.exe"), "shell"])
+            elif choice == '2':
+                power_menu(info)
+            elif choice == 'q':
+                break
+        else:
+            # Global waiting state
+            console.print(Panel("[bold red]No Device![/bold red] Waiting for connection...", expand=False))
+            time.sleep(2)
+
+def power_menu(info):
+    while True:
+        clear()
+        console.print(f"[bold yellow]Power Options - {info}[/bold yellow]\n")
+        console.print("1) Reboot\n2) Recovery\n3) Download\nB) Back")
+        
+        # Check connection inside sub-menu
+        res = run_adb(["devices"])
+        if not (res and "device\n" in res.stdout):
+            break
+
+        c = input("\nAction > ").lower()
+        if c == '1': run_adb(["reboot"])
+        elif c == '2': run_adb(["reboot", "recovery"])
+        elif c == '3': run_adb(["reboot", "download"])
+        elif c == 'b': break
 
 if __name__ == "__main__":
-    main()
+    try:
+        main_loop()
+    except KeyboardInterrupt:
+        pass

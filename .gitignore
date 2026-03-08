@@ -1,0 +1,12 @@
+# Google Platform Tools
+platform-tools/
+*.exe
+
+# Python Cache and Build files
+__pycache__/
+build/
+dist/
+*.spec
+
+logs/
+*.log

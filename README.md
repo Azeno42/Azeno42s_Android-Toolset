@@ -13,7 +13,7 @@ A lightweight, terminal-based Android management utility built with Python and A
 ## 🛠️ Installation
 The easiest way to install the toolset is using the **Azeno_Installer.exe**:
 
-1. Download the latest `Azeno_Installer.exe` from the [Releases](link_to_releases) section.
+1. Download the latest `Azeno_Installer.exe` from the [Releases](https://github.com/Azeno42/Azeno42s_Android-Toolset/releases) section.
 2. Run the installer as **Administrator**.
 3. The installer will automatically:
    - Create a directory in `Program Files`.
@@ -26,3 +26,16 @@ The easiest way to install the toolset is using the **Azeno_Installer.exe**:
 Once installed, simply open any terminal (CMD or PowerShell) and type:
 ```bash
 python main.py
+```
+
+## ⚠️ Requirements
+   - Windows 10/11
+   - USB Debugging must be enabled on your Android device.
+   - Python 3.10+ (The installer can handle this for you).
+
+## 📄 License & Credits
+   - Developer: Azeno42 (Azeno42_Tech)
+   - Engine: Powered by Google's Android Debug Bridge (ADB).
+   - UI: Styled with the Rich Python library.
+
+Note: This is an Alpha release. Expect bugs and frequent updates as we move toward v1.0!

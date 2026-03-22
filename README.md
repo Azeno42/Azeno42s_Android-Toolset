@@ -5,10 +5,19 @@ A lightweight, terminal-based Android management utility built with Python and A
 
 
 ## ✨ Features
-- **Smart Shell:** Automatically detects the device and attempts to gain root (su) access. Fallbacks to standard user shell if root is not available.
-- **Dynamic Device Detection:** Real-time identification of connected device models and Android versions.
-- **Power Options:** Quick commands to reboot into Recovery, Download Mode (Samsung), or Bootloader/Fastboot.
-- **Global Deployment:** Can be installed directly to `Program Files` and accessed from any terminal via System PATH.
+[New] Modular Logic: Each function (App Management, Device Info, Settings) runs as a separate module for better performance.
+
+[New] App Management: Powerful debloater to remove unwanted packages (pm uninstall integration).
+
+[New] Universal Device Stats: Real-time data fetching including storage usage and screen resolution.
+
+[New] Auto-Identity: Automatically recognizes device hardware ID and brand.
+
+Smart Shell: Quick access to Android's internal shell.
+
+Multi-language Support: Full Turkish and English support during installation and execution.
+
+Root Awareness: Integrated Magisk/KernelSU detection.
 
 ## 🛠️ Installation
 The easiest way to install the toolset is using the **Azeno_Installer.exe**:
